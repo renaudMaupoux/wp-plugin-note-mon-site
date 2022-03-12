@@ -3,7 +3,7 @@
 - 👋 Hi, I’m @renaudMaupoux, I’m currently learning how to create a plugin for Wordpress using [WPCookbook](https://vincentdubroeucq.com/wpcookbook/) :sparkles:
 Thanks @vincedubroeucq for his help
 
-###Fonctionnement
+###Fonctionnement,
 *Installer et activer le plugin*Utiliser le shortcode `[test-form]` pour diffuser le form d'avis
 
 
