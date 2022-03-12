@@ -129,9 +129,6 @@ function test_create_review(){
 new Avis_metabox_create();
 
 
-
-
-
 // in main plugin file
 add_action( 'admin_menu', 'nms_settings_menu' );
 
