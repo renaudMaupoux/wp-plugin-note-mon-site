@@ -154,15 +154,15 @@ class Avis_metabox_create {
         <p>
             <label for="rating"><?php _e( 'Your rating', 'test' ); ?></label>
             <select id="rating" name="rating">
-                <option value="1-0" <?php selected( $rating, 1-0 ); ?>>1</option>
-                <option value="1-5" <?php selected( $rating, 1-5 ); ?>>1.5</option>
-                <option value="2-0" <?php selected( $rating, 2-0 ); ?>>2</option>
-                <option value="2-5" <?php selected( $rating, 2-5 ); ?>>2.5</option>
-                <option value="3-0" <?php selected( $rating, 3-0 ); ?>>3</option>
-                <option value="3-5" <?php selected( $rating, 3-5 ); ?>>3.5</option>
-                <option value="4-0" <?php selected( $rating, 4-0 ); ?>>4</option>
-                <option value="4-5" <?php selected( $rating, 4-5 ); ?>>4.5</option>
-                <option value="5-0" <?php selected( $rating, 5-0 ); ?>>5</option>
+                <option value="1-0" <?php selected( $rating, '1-0' ); ?>>1 truc</option>
+                <option value="1-5" <?php selected( $rating, '1-5' ); ?>>1.5</option>
+                <option value="2-0" <?php selected( $rating, '2-0' ); ?>>2</option>
+                <option value="2-5" <?php selected( $rating, '2-5' ); ?>>2.5</option>
+                <option value="3-0" <?php selected( $rating, '3-0' ); ?>>3</option>
+                <option value="3-5" <?php selected( $rating, '3-5' ); ?>>3.5</option>
+                <option value="4-0" <?php selected( $rating, '4-0' ); ?>>4</option>
+                <option value="4-5" <?php selected( $rating, '4-5' ); ?>>4.5</option>
+                <option value="5-0" <?php selected( $rating, '5-0' ); ?>>5</option>
             </select>
         </p>
         <?php
