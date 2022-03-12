@@ -10,7 +10,7 @@
 * Author URI: https://ateliermaupoux.com/
 * License: GPL v2 or later
 * License URI: https://www.gnu.org/licenses/gpl-2.0.html
-* Text Domain: 03-note-mon-site
+* Text Domain: note-mon-site
 * Domain Path: languages/
 */
 defined( 'ABSPATH' ) || die();
@@ -35,9 +35,7 @@ require_once (dirname(__FILE__).'/inc/shortcodes.php');
 /*****************************************************************************************************
  * LE FORMULAIRE
  ***************************************************************************************************/
-
 add_shortcode( 'test_form', 'test_form' );
-
 function test_form( $atts, $content = null, $tag = 'test_form' ){   
     $admin_url = admin_url( 'admin-post.php' );
     ob_start();
@@ -49,15 +47,15 @@ function test_form( $atts, $content = null, $tag = 'test_form' ){
             <?php wp_nonce_field( 'create_review', 'create_review_nonce' );?>
             <input type="hidden" name="action" value="create_review" />
             <p>
-                <label for="nom"><?php _e( 'Your name', '03-note-mon-site' ); ?></label>
+                <label for="nom"><?php _e( 'Your name', 'note-mon-site' ); ?></label>
                 <input type="text" id="nom" name="nom" />
             </p>
             <p>
-                <label for="message"><?php _e( 'Your message', '03-note-mon-site' ); ?></label>
+                <label for="message"><?php _e( 'Your message', 'note-mon-site' ); ?></label>
                 <textarea id="message" name="message"></textarea>
             </p>
             <p>
-                <label for="rating"><?php _e( 'Your rating', '03-note-mon-site' ); ?></label>
+                <label for="rating"><?php _e( 'Your rating', 'note-mon-site' ); ?></label>
                 <select id="rating" name="rating">
                     <option value="1-0">1</option>
                     <option value="1-5">1.5</option>
@@ -71,7 +69,7 @@ function test_form( $atts, $content = null, $tag = 'test_form' ){
                 </select>
             </p>
             <p>
-                <input type="submit" value="<?php _e( 'Submit', '03-note-mon-site' ); ?>" />
+                <input type="submit" value="<?php _e( 'Submit', 'note-mon-site' ); ?>" />
             </p>
         </form>
     <?php
@@ -126,67 +124,161 @@ function test_create_review(){
     exit;
 }
 
-add_action( 'add_meta_boxes', 'test_register_metabox' );
-function test_register_metabox(){
-    add_meta_box(
-        'test-form-metabox',                              // ID
-        __( 'Rating metabox', 'test' ),                   // Title
-        'rating_metabox',                                 // Callback
-        'avis',                                           // Screen. Default null.
-        'side',                                           // Context. Default 'advanced'
-        'low',                                            // Priority. Default 'default'
-        array(                                            // Additional data passed to the callback. Default null
-            'description' => __( 'Type in your awesome tagline !', '28-metabox' ),
+/***************************************************************************************************
+ * METABOX CREATION USING CLASS
+ ***************************************************************************************************/
+class Avis_metabox_create {
+    public $post;
+    public function __construct(){
+        add_action( 'save_post_avis', [$this,'rating_metabox_save'], 10, 3 );
+        add_action('add_meta_boxes', [$this,'create_meta_boxes']); 
+        
+    } 
+    public function create_meta_boxes(){
+        add_meta_box(
+            'test-form-metabox',                              // ID
+            __( 'Rating metabox', 'note-mon-site' ),          // Title
+            [$this, 'meta_boxes_html'],                       // Callback
+            ['avis'],                                         // Screen. Default null.
+            'side',                                           // Context. Default 'advanced'
+            'low',                                            // Priority. Default 'default'
+            array(                                            // Additional data passed to the callback. Default null
+                'description' => __( 'Type in your awesome tagline !', 'note-mon-site' ),
+            )
+        );
+    }
+    public function meta_boxes_html( $post ){
+        $post_id = $post->ID;
+        $rating = get_post_meta( $post_id, 'rating', true );
+       ?>
+           <p>
+               <label for="rating"><?php _e( 'Your rating', 'test' ); ?></label>
+               <select id="rating" name="rating">
+                   <option value="1-0" <?php selected( $rating, 1-0 ); ?>>1</option>
+                   <option value="1-5" <?php selected( $rating, 1-5 ); ?>>1.5</option>
+                   <option value="2-0" <?php selected( $rating, 2-0 ); ?>>2</option>
+                   <option value="2-5" <?php selected( $rating, 2-5 ); ?>>2.5</option>
+                   <option value="3-0" <?php selected( $rating, 3-0 ); ?>>3</option>
+                   <option value="3-5" <?php selected( $rating, 3-5 ); ?>>3.5</option>
+                   <option value="4-0" <?php selected( $rating, 4-0 ); ?>>4</option>
+                   <option value="4-5" <?php selected( $rating, 4-5 ); ?>>4.5</option>
+                   <option value="5-0" <?php selected( $rating, 5-0 ); ?>>5</option>
+               </select>
+           </p>
+      <?php
+   }
+
+    public function rating_metabox_save( $post_ID, $post, $update ){
+        // Check if nonce is set and valid. If not, just early return.
+        // if ( ! isset( $_POST['wpcookbook_metabox_nonce'] ) || ! wp_verify_nonce( $_POST['wpcookbook_metabox_nonce'], 'wpcookbook_metabox_save_' . $post_ID ) ) {
+        //     return;
+        // }
+        // Check user capabilities
+        if ( ! current_user_can( 'edit_post', $post_ID ) ) {
+            return;
+        }
+        // Do not save metabox content when auto saving.
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+       
+        if( ! empty( $_POST['rating'] ) ){
+            echo 'tratratr';
+            update_post_meta( $post_ID, 'rating', (string) $_POST['rating'] );
+        }
+    }
+}
+new Avis_metabox_create();
+
+
+
+
+
+// in main plugin file
+add_action( 'admin_menu', 'nms_settings_menu' );
+
+
+function nms_settings_menu() {
+    $hookname = add_submenu_page(
+        'edit.php?post_type=avis', // Parent slug
+        __( 'Note mon site', '27-settings' ), // Page title
+        __( 'Réglages', '27-settings' ), // Menu title
+        'manage_options', // Capabilities
+        'nms-page', // Slug
+        'nms_menu_page_callback', // Display callback
+        10 // Priority/position.
+    );
+    //add_action( 'load-' . $hookname, 'nms_handle_settings' );
+
+    }
+// function nms_handle_settings(){
+//     echo '<h1>BlaBla Bla</h1>';
+
+// }
+
+
+
+// in main plugin file
+add_action( 'admin_init', 'wpcookbook_register_settings' );
+/**
+* Registers our new settings
+*/
+function wpcookbook_register_settings(){
+    register_setting(
+        'wpcookbook', // Group Name
+        'wpcookbook_text_field', // Setting Name
+        array(
+            'type' => 'string',// Value type
+            'description' => __( 'Simple text field', '27-settings' ),// Description
+            'sanitize_callback' => 'sanitize_text_field',// Sanitize callback
+            'show_in_rest' => false,// Whether to make available in REST API
+            'default' => '',// Default value
         )
     );
+    add_settings_section(
+        'wpcookbook-first-section', // Section ID
+        __( 'First section', '27-settings' ), // Title
+        'wpcookbook_first_section_display', // Callback
+        'wpcookbook-page' // Page
+    );
+    add_settings_field(
+        'wpcookbook_text_field', // Field ID
+        __( 'Simple text field', '27-settings' ), // Title
+        'wpcookbook_text_field_display', // Callback
+        'wpcookbook-page', // Page
+        'wpcookbook-first-section', // Section
+        array(
+            'label_for' => 'wpcookbook_text_field', // Label
+            'class' => 'wpcookbook-text-field', // CSS Classname
+        )
+        );
 }
 
-function rating_metabox( $post ){
-     $post_id = $post->ID;
-     $rating = get_post_meta( $post_id, 'rating', true );
 
-    ?>
-        <p>
-            <label for="rating"><?php _e( 'Your rating', 'test' ); ?></label>
-            <select id="rating" name="rating">
-                <option value="1-0" <?php selected( $rating, 1-0 ); ?>>1</option>
-                <option value="1-5" <?php selected( $rating, 1-5 ); ?>>1.5</option>
-                <option value="2-0" <?php selected( $rating, 2-0 ); ?>>2</option>
-                <option value="2-5" <?php selected( $rating, 2-5 ); ?>>2.5</option>
-                <option value="3-0" <?php selected( $rating, 3-0 ); ?>>3</option>
-                <option value="3-5" <?php selected( $rating, 3-5 ); ?>>3.5</option>
-                <option value="4-0" <?php selected( $rating, 4-0 ); ?>>4</option>
-                <option value="4-5" <?php selected( $rating, 4-5 ); ?>>4.5</option>
-                <option value="5-0" <?php selected( $rating, 5-0 ); ?>>5</option>
-            </select>
-        </p>
-   <?php
-   //print_r( $rating);
-}
+function wpcookbook_first_section_display( $args ){
+        printf( '<p><strong>%s</strong></p>', esc_html( $args['title'] ) );
+        }
 
-add_action( 'save_post_avis', 'rating_metabox_save', 10, 3 );
-/**
- * Saves our metabox fields
- * @param  int      $post_ID  Post ID.
- * @param  WP_Post  $post     Post object.
- * @param  bool     $update   Whether this is an existing post being updated or not.
- */
-function rating_metabox_save( $post_ID, $post, $update ){
-    // Check if nonce is set and valid. If not, just early return.
-    // if ( ! isset( $_POST['wpcookbook_metabox_nonce'] ) || ! wp_verify_nonce( $_POST['wpcookbook_metabox_nonce'], 'wpcookbook_metabox_save_' . $post_ID ) ) {
-    //     return;
-    // }
-    // Check user capabilities
-    if ( ! current_user_can( 'edit_post', $post_ID ) ) {
-        return;
-    }
-    // Do not save metabox content when auto saving.
-    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-        return;
+function wpcookbook_text_field_display( $args ){
+
+        $value = get_option( 'wpcookbook_text_field' ) ?: '' ;
+        ?>
+        <input id="<?php echo esc_attr( $args['label_for'] ); ?>" type="text" name="wpcookbook_text_field" value="<?php echo esc_attr( $value ); ?>">
+        <?php
     }
     
-    if( ! empty( $_POST['rating'] ) ){
-        update_post_meta( $post_ID, 'rating', (string) $_POST['rating'] );
+
+function nms_menu_page_callback(){
+            ?>
+            <div class="wrap">
+            <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+                <form action="options.php" method="POST">
+                <?php
+                    settings_fields( 'wpcookbook' );
+                    do_settings_sections( 'wpcookbook-page' );
+                    submit_button();
+                ?>
+                </form>
+            </div>
+            <?php
     }
-    var_dump($_POST['rating']);
-}
