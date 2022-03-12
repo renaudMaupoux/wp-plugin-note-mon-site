@@ -1,18 +1,18 @@
 <?php
 /**
-* Plugin Name: Note mon site V3.
-* Plugin URI: https://example.com/plugins/03-note-mon-site/
-* Description: This display quotes of websaite.
-* Version: 1.0
-* Requires at least: 5.2
-* Requires PHP: 7.2
-* Author: Renaud Maupoux
-* Author URI: https://ateliermaupoux.com/
-* License: GPL v2 or later
-* License URI: https://www.gnu.org/licenses/gpl-2.0.html
-* Text Domain: note-mon-site
-* Domain Path: languages/
-*/
+ * Plugin Name: Note mon site V3.
+ * Plugin URI: https://example.com/plugins/03-note-mon-site/
+ * Description: This display quotes of websaite.
+ * Version: 1.0
+ * Requires at least: 5.2
+ * Requires PHP: 7.2
+ * Author: Renaud Maupoux
+ * Author URI: https://ateliermaupoux.com/
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: note-mon-site
+ * Domain Path: languages/
+ */
 defined( 'ABSPATH' ) || die();
 
 /*****************************************************************************************************
@@ -36,42 +36,42 @@ require_once (dirname(__FILE__).'/inc/shortcodes.php');
  * LE FORMULAIRE
  ***************************************************************************************************/
 add_shortcode( 'test_form', 'test_form' );
-function test_form( $atts, $content = null, $tag = 'test_form' ){   
+function test_form( $atts, $content = null, $tag = 'test_form' ){
     $admin_url = admin_url( 'admin-post.php' );
     ob_start();
     if( ! empty( $_GET['missing-fields'] ) ) {
         echo '<p>Missing fields</p>';
     }
     ?>
-        <form method="POST" action="<?php echo esc_url( $admin_url ); ?>">
-            <?php wp_nonce_field( 'create_review', 'create_review_nonce' );?>
-            <input type="hidden" name="action" value="create_review" />
-            <p>
-                <label for="nom"><?php _e( 'Your name', 'note-mon-site' ); ?></label>
-                <input type="text" id="nom" name="nom" />
-            </p>
-            <p>
-                <label for="message"><?php _e( 'Your message', 'note-mon-site' ); ?></label>
-                <textarea id="message" name="message"></textarea>
-            </p>
-            <p>
-                <label for="rating"><?php _e( 'Your rating', 'note-mon-site' ); ?></label>
-                <select id="rating" name="rating">
-                    <option value="1-0">1</option>
-                    <option value="1-5">1.5</option>
-                    <option value="2-0">2</option>
-                    <option value="2-5">2.5</option>
-                    <option value="3-0">3</option>
-                    <option value="3-5">3.5</option>
-                    <option value="4-0">4</option>
-                    <option value="4-5">4.5</option>
-                    <option value="5-0" selected="selected">5</option>
-                </select>
-            </p>
-            <p>
-                <input type="submit" value="<?php _e( 'Submit', 'note-mon-site' ); ?>" />
-            </p>
-        </form>
+    <form method="POST" action="<?php echo esc_url( $admin_url ); ?>">
+        <?php wp_nonce_field( 'create_review', 'create_review_nonce' );?>
+        <input type="hidden" name="action" value="create_review" />
+        <p>
+            <label for="nom"><?php _e( 'Your name', 'note-mon-site' ); ?></label>
+            <input type="text" id="nom" name="nom" />
+        </p>
+        <p>
+            <label for="message"><?php _e( 'Your message', 'note-mon-site' ); ?></label>
+            <textarea id="message" name="message"></textarea>
+        </p>
+        <p>
+            <label for="rating"><?php _e( 'Your rating', 'note-mon-site' ); ?></label>
+            <select id="rating" name="rating">
+                <option value="1-0">1</option>
+                <option value="1-5">1.5</option>
+                <option value="2-0">2</option>
+                <option value="2-5">2.5</option>
+                <option value="3-0">3</option>
+                <option value="3-5">3.5</option>
+                <option value="4-0">4</option>
+                <option value="4-5">4.5</option>
+                <option value="5-0" selected="selected">5</option>
+            </select>
+        </p>
+        <p>
+            <input type="submit" value="<?php _e( 'Submit', 'note-mon-site' ); ?>" />
+        </p>
+    </form>
     <?php
 
     if( ! empty( $_GET['success'] ) ) {
@@ -95,26 +95,26 @@ function test_create_review(){
         exit;
     }
 
-     if( empty( $_POST['create_review_nonce'] ) || wp_verify_nonce() ){
-         wp_safe_redirect( add_query_arg( 'missing-fields', 'nonce', wp_get_referer() ) );
-         exit;
-     }
+    if( empty( $_POST['create_review_nonce'] ) || wp_verify_nonce() ){
+        wp_safe_redirect( add_query_arg( 'missing-fields', 'nonce', wp_get_referer() ) );
+        exit;
+    }
 
     $message = sanitize_text_field( $_POST['message']  );
     $nom = sanitize_text_field( $_POST['nom']  );
     $rating = sanitize_text_field( $_POST['rating']  );
 
-    $success = wp_insert_post( 
+    $success = wp_insert_post(
         array(
-        'post_title' => ! empty( $_POST['nom'] ) ? $nom  : '',
-        'post_content' => ! empty( $_POST['message'] ) ? $message  : '',
-        'meta_input' => array(
-            'rating' => (string) $rating
-        ),
-        'post_type' => 'avis',
-        //default post status : draft
-        'post_status' => 'publish',
-    ) );
+            'post_title' => ! empty( $_POST['nom'] ) ? $nom  : '',
+            'post_content' => ! empty( $_POST['message'] ) ? $message  : '',
+            'meta_input' => array(
+                'rating' => (string) $rating
+            ),
+            'post_type' => 'avis',
+            //default post status : draft
+            'post_status' => 'publish',
+        ) );
 
     if( $success ){
         wp_safe_redirect( add_query_arg( 'success', '1', wp_get_referer() ) );
@@ -131,9 +131,9 @@ class Avis_metabox_create {
     public $post;
     public function __construct(){
         add_action( 'save_post_avis', [$this,'rating_metabox_save'], 10, 3 );
-        add_action('add_meta_boxes', [$this,'create_meta_boxes']); 
-        
-    } 
+        add_action('add_meta_boxes', [$this,'create_meta_boxes']);
+
+    }
     public function create_meta_boxes(){
         add_meta_box(
             'test-form-metabox',                              // ID
@@ -150,23 +150,23 @@ class Avis_metabox_create {
     public function meta_boxes_html( $post ){
         $post_id = $post->ID;
         $rating = get_post_meta( $post_id, 'rating', true );
-       ?>
-           <p>
-               <label for="rating"><?php _e( 'Your rating', 'test' ); ?></label>
-               <select id="rating" name="rating">
-                   <option value="1-0" <?php selected( $rating, 1-0 ); ?>>1</option>
-                   <option value="1-5" <?php selected( $rating, 1-5 ); ?>>1.5</option>
-                   <option value="2-0" <?php selected( $rating, 2-0 ); ?>>2</option>
-                   <option value="2-5" <?php selected( $rating, 2-5 ); ?>>2.5</option>
-                   <option value="3-0" <?php selected( $rating, 3-0 ); ?>>3</option>
-                   <option value="3-5" <?php selected( $rating, 3-5 ); ?>>3.5</option>
-                   <option value="4-0" <?php selected( $rating, 4-0 ); ?>>4</option>
-                   <option value="4-5" <?php selected( $rating, 4-5 ); ?>>4.5</option>
-                   <option value="5-0" <?php selected( $rating, 5-0 ); ?>>5</option>
-               </select>
-           </p>
-      <?php
-   }
+        ?>
+        <p>
+            <label for="rating"><?php _e( 'Your rating', 'test' ); ?></label>
+            <select id="rating" name="rating">
+                <option value="1-0" <?php selected( $rating, 1-0 ); ?>>1</option>
+                <option value="1-5" <?php selected( $rating, 1-5 ); ?>>1.5</option>
+                <option value="2-0" <?php selected( $rating, 2-0 ); ?>>2</option>
+                <option value="2-5" <?php selected( $rating, 2-5 ); ?>>2.5</option>
+                <option value="3-0" <?php selected( $rating, 3-0 ); ?>>3</option>
+                <option value="3-5" <?php selected( $rating, 3-5 ); ?>>3.5</option>
+                <option value="4-0" <?php selected( $rating, 4-0 ); ?>>4</option>
+                <option value="4-5" <?php selected( $rating, 4-5 ); ?>>4.5</option>
+                <option value="5-0" <?php selected( $rating, 5-0 ); ?>>5</option>
+            </select>
+        </p>
+        <?php
+    }
 
     public function rating_metabox_save( $post_ID, $post, $update ){
         // Check if nonce is set and valid. If not, just early return.
@@ -181,7 +181,7 @@ class Avis_metabox_create {
         if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
             return;
         }
-       
+
         if( ! empty( $_POST['rating'] ) ){
             echo 'tratratr';
             update_post_meta( $post_ID, 'rating', (string) $_POST['rating'] );
@@ -210,7 +210,7 @@ function nms_settings_menu() {
     );
     //add_action( 'load-' . $hookname, 'nms_handle_settings' );
 
-    }
+}
 // function nms_handle_settings(){
 //     echo '<h1>BlaBla Bla</h1>';
 
@@ -221,8 +221,8 @@ function nms_settings_menu() {
 // in main plugin file
 add_action( 'admin_init', 'wpcookbook_register_settings' );
 /**
-* Registers our new settings
-*/
+ * Registers our new settings
+ */
 function wpcookbook_register_settings(){
     register_setting(
         'wpcookbook', // Group Name
@@ -251,34 +251,34 @@ function wpcookbook_register_settings(){
             'label_for' => 'wpcookbook_text_field', // Label
             'class' => 'wpcookbook-text-field', // CSS Classname
         )
-        );
+    );
 }
 
 
 function wpcookbook_first_section_display( $args ){
-        printf( '<p><strong>%s</strong></p>', esc_html( $args['title'] ) );
-        }
+    printf( '<p><strong>%s</strong></p>', esc_html( $args['title'] ) );
+}
 
 function wpcookbook_text_field_display( $args ){
 
-        $value = get_option( 'wpcookbook_text_field' ) ?: '' ;
-        ?>
-        <input id="<?php echo esc_attr( $args['label_for'] ); ?>" type="text" name="wpcookbook_text_field" value="<?php echo esc_attr( $value ); ?>">
-        <?php
-    }
-    
+    $value = get_option( 'wpcookbook_text_field' ) ?: '' ;
+    ?>
+    <input id="<?php echo esc_attr( $args['label_for'] ); ?>" type="text" name="wpcookbook_text_field" value="<?php echo esc_attr( $value ); ?>">
+    <?php
+}
+
 
 function nms_menu_page_callback(){
-            ?>
-            <div class="wrap">
-            <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
-                <form action="options.php" method="POST">
-                <?php
-                    settings_fields( 'wpcookbook' );
-                    do_settings_sections( 'wpcookbook-page' );
-                    submit_button();
-                ?>
-                </form>
-            </div>
+    ?>
+    <div class="wrap">
+        <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+        <form action="options.php" method="POST">
             <?php
-    }
+            settings_fields( 'wpcookbook' );
+            do_settings_sections( 'wpcookbook-page' );
+            submit_button();
+            ?>
+        </form>
+    </div>
+    <?php
+}
