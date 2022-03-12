@@ -5,8 +5,9 @@ Thanks @vincedubroeucq for his help
 
 ### Fonctionnement
 
-* Installer et activer le plugin *Utiliser le shortcode `[test-form]` pour diffuser le form d'avis
-* Item1 *Item 2
+* Installer et activer le plugin 
+* Utiliser le shortcode `[test-form]` pour diffuser le form d'avis
+
 
 
 ![alt text](http://ateliermaupoux.com.mare2067.odns.fr/avis.png)
