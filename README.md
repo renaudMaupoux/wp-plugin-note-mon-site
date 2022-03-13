@@ -6,7 +6,7 @@ Thanks @vincedubroeucq for his help
 ### How to use it
 
 * Install and activate the plugin 
-* Use shortcode `[test-form]` to display form on pages or articles
+* Use shortcode `[formulaire_avis]` to display form on pages or articles
 * Use shortcode `[carrousel_site]` to display this result:
 
 ![alt text](http://ateliermaupoux.com.mare2067.odns.fr/avis.png)
