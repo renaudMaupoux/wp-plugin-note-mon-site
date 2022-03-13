@@ -36,8 +36,8 @@ require_once (dirname(__FILE__).'/inc/class/avis_metabox_create.php');
 /*****************************************************************************************************
  * LE FORMULAIRE
  ***************************************************************************************************/
-add_shortcode( 'test_form', 'test_form' );
-function test_form( $atts, $content = null, $tag = 'test_form' ){
+add_shortcode( 'formulaire_avis', 'formulaire_avis' );
+function formulaire_avis( $atts, $content = null, $tag = 'test_form' ){
     $admin_url = admin_url( 'admin-post.php' );
     ob_start();
     if( ! empty( $_GET['missing-fields'] ) ) {
@@ -83,12 +83,12 @@ function test_form( $atts, $content = null, $tag = 'test_form' ){
     return $html;
 }
 /*****************************************************************************************************
- * LE FORMULAIRE security tests on input hiden Value= create review
+ * LE FORMULAIRE security tests on input hidden Value= create review
  ***************************************************************************************************/
-add_action( 'admin_post_nopriv_create_review', 'test_create_review' );
-add_action( 'admin_post_create_review', 'test_create_review' );
+add_action( 'admin_post_nopriv_create_review', 'form_create_review' );
+add_action( 'admin_post_create_review', 'form_create_review' );
 
-function test_create_review(){
+function form_create_review(){
 
     $referer = wp_get_referer();
     if( empty( $_POST['nom']) || empty( $_POST['message'])){
@@ -96,15 +96,10 @@ function test_create_review(){
         exit;
     }
 
-    if( empty( $_POST['create_review_nonce'] ) || wp_verify_nonce() ){
-        wp_safe_redirect( add_query_arg( 'missing-fields', 'nonce', wp_get_referer() ) );
-        exit;
-    }
-
     $message = sanitize_text_field( $_POST['message']  );
     $nom = sanitize_text_field( $_POST['nom']  );
     $rating = sanitize_text_field( $_POST['rating']  );
-
+    $value = get_option( 'wpcookbook_radio_field' );
     $success = wp_insert_post(
         array(
             'post_title' => ! empty( $_POST['nom'] ) ? $nom  : '',
@@ -113,8 +108,7 @@ function test_create_review(){
                 'rating' => (string) $rating
             ),
             'post_type' => 'avis',
-            //default post status : draft
-            'post_status' => 'publish',
+            'post_status' => $value,
         ) );
 
     if( $success ){
@@ -125,81 +119,72 @@ function test_create_review(){
     exit;
 }
 
-
+/*****************************************************************************************************
+ * DISPLAY, CREATION METABOX WITH SELECT
+ ***************************************************************************************************/
 new Avis_metabox_create();
 
-
-// in main plugin file
+/*****************************************************************************************************
+ * ADD 'REGLAGE' ITEM IN MENU WP SIDEBAR
+ ***************************************************************************************************/
 add_action( 'admin_menu', 'nms_settings_menu' );
-
-
 function nms_settings_menu() {
     $hookname = add_submenu_page(
         'edit.php?post_type=avis', // Parent slug
-        __( 'Note mon site', '27-settings' ), // Page title
-        __( 'Réglages', '27-settings' ), // Menu title
+        __( 'Note mon site', 'note-mon-site' ), // Page title
+        __( 'Réglages', 'note-mon-site' ), // Menu title
         'manage_options', // Capabilities
         'nms-page', // Slug
         'nms_menu_page_callback', // Display callback
         10 // Priority/position.
     );
-    //add_action( 'load-' . $hookname, 'nms_handle_settings' );
-
 }
-// function nms_handle_settings(){
-//     echo '<h1>BlaBla Bla</h1>';
-
-// }
 
 
 
-// in main plugin file
-add_action( 'admin_init', 'wpcookbook_register_settings' );
-/**
- * Registers our new settings
- */
-function wpcookbook_register_settings(){
-    register_setting(
-        'wpcookbook', // Group Name
-        'wpcookbook_text_field', // Setting Name
-        array(
-            'type' => 'string',// Value type
-            'description' => __( 'Simple text field', '27-settings' ),// Description
-            'sanitize_callback' => 'sanitize_text_field',// Sanitize callback
-            'show_in_rest' => false,// Whether to make available in REST API
-            'default' => '',// Default value
-        )
-    );
+/*****************************************************************************************************
+ * ADD SETTINGS
+ ***************************************************************************************************/
+add_action( 'admin_init', 'nms_register_settings' );
+function nms_register_settings(){
+
+    register_setting( 'wpcookbook', 'wpcookbook_radio_field', 'sanitize_key' );
+
     add_settings_section(
         'wpcookbook-first-section', // Section ID
-        __( 'First section', '27-settings' ), // Title
+        __( 'First section', 'note-mon-site' ), // Title
         'wpcookbook_first_section_display', // Callback
         'wpcookbook-page' // Page
     );
     add_settings_field(
-        'wpcookbook_text_field', // Field ID
-        __( 'Simple text field', '27-settings' ), // Title
-        'wpcookbook_text_field_display', // Callback
+        'wpcookbook_radio_field', // Field ID
+        __( 'Simple radio field', 'note-mon-site' ), // Title
+        'wpcookbook_radio_field_display', // Callback
         'wpcookbook-page', // Page
         'wpcookbook-first-section', // Section
-        array(
-            'label_for' => 'wpcookbook_text_field', // Label
-            'class' => 'wpcookbook-text-field', // CSS Classname
-        )
     );
 }
 
+function wpcookbook_radio_field_display( $args ){
+    $value = get_option( 'wpcookbook_radio_field' ) ?: 'option1' ;
+    ?>
+    <fieldset>
+        <label for="option1">
+            <input id="option1" type="radio" name="wpcookbook_radio_field"
+                   value="draft" <?php checked( $value, 'draft' ); ?> />
+            <span><?php esc_html_e( 'Draft', 'note-mon-site' ); ?></span>
+        </label><br />
+        <label for="option2">
+            <input id="option2" type="radio" name="wpcookbook_radio_field"
+                   value="publish" <?php checked( $value, 'publish' ); ?> />
+            <span><?php esc_html_e( 'Publish', 'note-mon-site' ); ?></span>
+        </label>
+    </fieldset>
+    <?php
+}
 
 function wpcookbook_first_section_display( $args ){
     printf( '<p><strong>%s</strong></p>', esc_html( $args['title'] ) );
-}
-
-function wpcookbook_text_field_display( $args ){
-
-    $value = get_option( 'wpcookbook_text_field' ) ?: '' ;
-    ?>
-    <input id="<?php echo esc_attr( $args['label_for'] ); ?>" type="text" name="wpcookbook_text_field" value="<?php echo esc_attr( $value ); ?>">
-    <?php
 }
 
 
