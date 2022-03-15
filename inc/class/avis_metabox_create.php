@@ -25,8 +25,10 @@ class Avis_metabox_create {
     public function meta_boxes_html( $post ){
         $post_id = $post->ID;
         $rating = get_post_meta( $post_id, 'rating', true );
+        wp_nonce_field('who_what_wich', 'the_nonce_generated');
         ?>
         <p>
+
             <label for="rating"><?php _e( 'Your rating', 'test' ); ?></label>
             <select id="rating" name="rating">
                 <option value="1-0" <?php selected( $rating, '1-0' ); ?>>1 truc</option>
@@ -45,9 +47,9 @@ class Avis_metabox_create {
 
     public function rating_metabox_save( $post_ID, $post, $update ){
         // Check if nonce is set and valid. If not, just early return.
-        // if ( ! isset( $_POST['wpcookbook_metabox_nonce'] ) || ! wp_verify_nonce( $_POST['wpcookbook_metabox_nonce'], 'wpcookbook_metabox_save_' . $post_ID ) ) {
-        //     return;
-        // }
+        if ( ( ! isset( $_POST['the_nonce_generated'] ) ) || ! wp_verify_nonce( $_POST['the_nonce_generated'], 'who_what_wich') ) {
+            wp_nonce_ays( '' );
+        }
         // Check user capabilities
         if ( ! current_user_can( 'edit_post', $post_ID ) ) {
             return;
