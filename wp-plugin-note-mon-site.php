@@ -45,7 +45,7 @@ function formulaire_avis( $atts, $content = null, $tag = 'test_form' ){
     }
     ?>
     <form method="POST" action="<?php echo esc_url( $admin_url ); ?>">
-        <?php wp_nonce_field( 'create_review', 'create_review_nonce' );?>
+        <?php wp_nonce_field( 'who_what_wich', 'the_nonce_generated' );?>
         <input type="hidden" name="action" value="create_review" />
         <p>
             <label for="nom"><?php _e( 'Your name', 'note-mon-site' ); ?></label>
@@ -89,9 +89,17 @@ add_action( 'admin_post_nopriv_create_review', 'form_create_review' );
 add_action( 'admin_post_create_review', 'form_create_review' );
 
 function form_create_review(){
+    // Nonce exit? it is a number generated with wp_nonce_field?
+    if ( ( ! isset( $_POST['the_nonce_generated'] ) ) || ! wp_verify_nonce( $_POST['the_nonce_generated'], 'who_what_wich') ) {
+        // le formulaire est refusé
+        //wp_nonce_ays( '' );
+        wp_redirect( home_url() );
+        die();
+    }
 
     $referer = wp_get_referer();
     if( empty( $_POST['nom']) || empty( $_POST['message'])){
+        // Generate an URL
         wp_safe_redirect( add_query_arg( 'missing-fields', 'nom_message', wp_get_referer() ) );
         exit;
     }
@@ -100,6 +108,7 @@ function form_create_review(){
     $nom = sanitize_text_field( $_POST['nom']  );
     $rating = sanitize_text_field( $_POST['rating']  );
     $value = get_option( 'wpcookbook_radio_field' );
+
     $success = wp_insert_post(
         array(
             'post_title' => ! empty( $_POST['nom'] ) ? $nom  : '',
@@ -108,7 +117,7 @@ function form_create_review(){
                 'rating' => (string) $rating
             ),
             'post_type' => 'avis',
-            'post_status' => $value,
+            'post_status' =>  ! empty( $value ) && $value === 'publish' ? 'publish' : 'draft',
         ) );
 
     if( $success ){
