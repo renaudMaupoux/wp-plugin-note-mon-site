@@ -18,4 +18,4 @@ Thanks @vincedubroeucq for his help
 
 ### Additional settings
 
-* Moderation is possible regarding settings "régleges" with two option buttons
+* Moderation is possible regarding settings "réglages" with two option buttons
