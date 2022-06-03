@@ -9,7 +9,7 @@ Thanks @vincedubroeucq for his help
 * Use shortcode `[formulaire_avis ]` to display form on pages or articles
 * Use shortcode `[carrousel_site]` to display this result:
 
-![une petit texte alt](http://ateliermaupoux.com.mare2067.odns.fr/avis.png)
+![demo de l'affichage](http://ateliermaupoux.com.mare2067.odns.fr/github-img/avis.png)
 
 
 ### How client add new informations
